@@ -135,6 +135,11 @@ object KmeansTest_k100_std {
 
     val normalizedData = data.map(normalize).cache()
 
+
+//    val distances = normalizedData.map(
+//      datum=>distToCentroid(datum,model)
+//    )
+
     (60 to 100 by 10).par.map(k=>(k,clusteringScore(normalizedData,k))).toList.foreach(println)
 
     spark.sparkContext.stop()
