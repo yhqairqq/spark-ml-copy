@@ -3,7 +3,7 @@ package com.unionpay.sparkmongo.app
 import com.mongodb.spark.MongoSpark
 import com.mongodb.spark.config.{WriteConfig, ReadConfig}
 import com.mongodb.spark.sql._
-import org.apache.spark.sql.{SQLContext, SaveMode, DataFrame}
+import org.apache.spark.sql.{SparkSession, SQLContext, SaveMode, DataFrame}
 import org.apache.spark.{SparkConf, SparkContext}
 
 /**
@@ -11,7 +11,7 @@ import org.apache.spark.{SparkConf, SparkContext}
   */
 object demo2 {
   val db = "crawl_hz"
-  val collection = "MainShop2"
+  val collection = "MainShop5"
   val collection_out = "MainShop3"
   val uri = "mongodb://127.0.0.1:33332/"
   //  val uri = "mongodb://10.15.159.169:30000/"
@@ -48,15 +48,25 @@ object demo2 {
 
     val sparkConf = new SparkConf().setMaster("local")
       .setAppName("scalaSimple2")
-    //    .setMaster("local")
+        .setMaster("local")
     val sc = new SparkContext(sparkConf)
 
-    val sqlContext = SQLContext.getOrCreate(sc)
+    val spark = SparkSession
+      .builder
+      .config(sparkConf)
+      .getOrCreate()
 
-    val df = mongoDF(sqlContext,uri,db,collection)
-    df.createOrReplaceTempView("Person")
-    val centenarians = sqlContext.sql("SELECT * FROM Person WHERE age >= 12")
-    centenarians.show()
+
+
+    val num = Array("sadfds","asfsdf","sdfasfdsa")
+
+    num.foreach(println)
+
+
+//    val df = mongoDF(spark.sqlContext,uri,db,collection)
+//    df.createOrReplaceTempView("Person")
+//    val centenarians = spark.sqlContext.sql("SELECT * FROM Person WHERE age >= 12")
+//    centenarians.show()
 
 //    save2mongo(uri,db,collection_out,centenarians)
 

@@ -13,7 +13,7 @@ import org.apache.spark.sql.types._
   */
 object demo6 {
   val db = "crawl_hz"
-  val collection = "MainShop2"
+  val collection = "MainShop5"
   val collection_out = "MainShop3"
   val uri = "mongodb://127.0.0.1:33332/"
   //    val uri = "mongodb://10.15.159.169:30000/"
@@ -67,7 +67,7 @@ object demo6 {
 
     val rows: RDD[Row] = df.rdd
 
-    rows.collect().foreach(println)
+//    rows.collect().foreach(println)
 
     //    filterDF.show()
 //    val rdddf = spark.sparkContext.parallelize(Seq(df.collect()))

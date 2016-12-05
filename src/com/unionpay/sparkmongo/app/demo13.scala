@@ -5,16 +5,18 @@ import com.mongodb.spark.sql._
 import org.apache.spark.SparkConf
 import org.apache.spark.sql._
 
-
 /**
   * Created by yhqairqq@163.com on 16/10/18.
   */
-object demo8 {
+object demo13 {
   val db = "crawl_hz"
-  val collection = "MainShop5"
-  val collection_out = "MainShop3"
+  val collection = "MainShop_DataOrigin_Unionpay"
+  val collection_coupon = "BankCouponInfo"
+  val collection_coupon_test = "BankCouponInfoTest"
+  val collection_test = "MainShop2"
+  val collection_out = "MainShop_DataOrigin_Unionpay_statistics2"
 //  val uri = "mongodb://127.0.0.1:33332/"
-      val uri = "mongodb://10.15.159.169:30000/"
+        val uri = "mongodb://10.15.159.169:30000/"
   val connAliveTime = "15000000000"
 
 
@@ -74,33 +76,37 @@ object demo8 {
 
   }
 
+  def findOne(ss: SparkSession, id: String, df: DataFrame) = {
+
+
+  }
+
   def main(args: Array[String]) {
 
     val sparkConf = new SparkConf()
-//      .setMaster("local")
-      .setAppName("demo8")
+//      .setMaster("local[*]")
+      .setAppName("demo13")
 
     val spark = SparkSession
       .builder()
       .config(sparkConf)
       .getOrCreate()
-    val df = mongoDF(spark, uri, db, collection)
 
-//    val row = df.select("hours").rdd
-//    df.createOrReplaceTempView("MainShop")
-//    val filterdf = spark.sql("select * from MainShop where openingHours=[]  ")
-    //    filterdf.printSchema()
 
-    //    //todo df --> rdd
-    //
-//    val rows: RDD[Row] = filterdf.rdd
-    import spark.implicits._
 
-    val filterRDD = df.map(x=>x.getAs[String]("shopName")).rdd.map(word=>(word,1)).reduceByKey((a,b)=>a+b).filter(args=>args._2>100).sortBy(x=>x._2,true,5)
-//      .sortBy()
-    filterRDD.saveAsTextFile("hours3.txt")
-//      .rdd.filter(x=>x!="")
-//    println(filterdf.count())
+    val df_mainshop = mongoDF(spark, uri, db, collection)
+    //    val df_coupon_test = mongoDF(spark,uri,db,collection_coupon_test)
+    val df = mongoDF(spark, uri, db, collection_out)
+
+
+
+        val filterRDD = df_mainshop.rdd.map(x=>(x.getAs[String]("brand"),x.getAs[String]("shopName"))).filter(x=>x._1==x._2).map(x=>(x._1,1))
+        .reduceByKey((a,b)=>a+b).sortBy(_._2,true,4)
+//          .filter(args=>args._1.size<3 || args._2.size<3).sortBy(x=>x._1,true,5)
+//          .sortBy()
+////        filterRDD.saveAsTextFile("hours3.txt")
+//          .rdd.filter(x=>x!="")
+    //    println(filterdf.count())
 
     //
     //    rows.collect().foreach(println)
@@ -129,7 +135,10 @@ object demo8 {
     //    val struct2 =  outdf.schema
     //
     //
-    save2mongo(uri, db, collection_out, filterRDD.toDF())
+
+    val outdf = spark.createDataFrame(filterRDD);
+
+        save2mongo(uri, db, collection_out, outdf)
     spark.stop()
 
 
